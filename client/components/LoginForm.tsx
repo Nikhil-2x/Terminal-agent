@@ -1,5 +1,6 @@
 "use client";
 
+import Shuffle from "./Shuffle";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,9 +35,20 @@ const LoginForm = () => {
         {/* Header section */}
         <div className="flex flex-col items-center justify-center space-y-6 text-center">
           <div className="">
-            <h1 className="text-5xl p-2 md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient">
-              Terminal Agent
-            </h1>
+            <Shuffle
+              text="Terminal Agent"
+              shuffleDirection="left"
+              duration={0.35}
+              animationMode="evenodd"
+              shuffleTimes={1}
+              ease="power3.out"
+              stagger={0.03}
+              threshold={0.1}
+              triggerOnce={true}
+              triggerOnHover={true}
+              respectReducedMotion={true}
+              className="cursor-pointer "
+            />
             <p className="text-base md:text-lg font-medium text-zinc-400/90 max-w-sm mx-auto">
               Sign in with GitHub to get started
             </p>
