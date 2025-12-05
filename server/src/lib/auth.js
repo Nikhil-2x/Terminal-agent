@@ -7,6 +7,7 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  baseURL: "http://localhost:3002",
   basePath: "/api/auth",
 
   trustedOrigins: ["http://localhost:3000"],
@@ -19,7 +20,8 @@ export const auth = betterAuth({
 
   plugins: [
     deviceAuthorization({
-      verificationUri: "/device",
+      expiresIn: "30m",
+      interval: "5s",
     }),
   ],
 });

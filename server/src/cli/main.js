@@ -5,6 +5,7 @@ import chalk from "chalk";
 import { Command } from "commander";
 
 import "dotenv/config";
+import { login } from "./commands/auth/login.js";
 
 async function main() {
   console.log(
@@ -19,7 +20,11 @@ async function main() {
   console.log(chalk.grey("A terminal based ai tool"));
 
   const program = new Command("logicsh");
-  program.version("0.1").description("Logic Shell - A cli based AI Tool");
+  program
+    .version("0.1")
+    .description("Logic Shell - A cli based AI Tool")
+    .addCommand(login);
+
   program.action(() => {
     program.help();
   });
