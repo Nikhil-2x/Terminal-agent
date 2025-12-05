@@ -27,6 +27,12 @@ app.get("/api/me", async (req, res) => {
   return res.json(session);
 });
 
+app.get("/device", (req, res) => {
+  const { user_code } = req.query;
+
+  res.redirect(`http://localhost:3000/device?user_code=${user_code}`);
+});
+
 app.get("/test", (req, res) => {
   res, send("Working fine");
 });

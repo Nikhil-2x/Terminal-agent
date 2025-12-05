@@ -13,13 +13,18 @@ import yoctoSpinner from "yocto-spinner";
 import open from "open";
 import * as z from "zod";
 import prisma from "../../../lib/db.js";
+import {
+  getStoredToken,
+  isTokenExpired,
+  storeToken,
+} from "../../../lib/token.js";
 
 dotenv.config();
 
 const URL = "http://localhost:3002";
 const CLIENT_ID = process.env.GITHUB_CLIENT_ID;
-const CONFIG_DIR = path.join(os.homedir(), ".better-auth");
-const TOKEN_FILE = path.join(CONFIG_DIR, "token.json");
+export const CONFIG_DIR = path.join(os.homedir(), ".better-auth");
+export const TOKEN_FILE = path.join(CONFIG_DIR, "token.json");
 
 export async function loginAction(opts) {
   const options = z.object({
@@ -32,8 +37,8 @@ export async function loginAction(opts) {
 
   intro(chalk.bold("🔏 Auth CLI Login"));
 
-  const existingToken = false;
-  const expired = false;
+  const existingToken = await getStoredToken();
+  const expired = isTokenExpired();
 
   if (existingToken && !expired) {
     const shouldReAuth = await confirm({
@@ -87,7 +92,7 @@ export async function loginAction(opts) {
 
     console.log(
       `Please visit: ${chalk.underline.blue(
-        verification_uri || verification_uri_complete
+        verification_uri_complete || verification_uri
       )}`
     );
 
@@ -100,7 +105,7 @@ export async function loginAction(opts) {
     });
 
     if (!isCancel(shouldOpen) && shouldOpen) {
-      const urlToOpen = verification_uri || verification_uri_complete;
+      const urlToOpen = verification_uri_complete || verification_uri;
       await open(urlToOpen);
     }
 
@@ -119,7 +124,29 @@ export async function loginAction(opts) {
       cliendtId,
       interval
     );
-  } catch (error) {}
+
+    if (token) {
+      const saved = await storeToken();
+
+      if (!saved) {
+        console.log(chalk.yellow("\n Could not save authentication token"));
+        console.log(chalk.yellow("You may need to login again on next use."));
+      }
+
+      outro(chalk.green("Login successfull."));
+      console.log(chalk.gray(`Token saved to : ${TOKEN_FILE}`));
+
+      console.log(
+        chalk.gray(
+          "You can now use commands without logging again till expiry of your token.\n"
+        )
+      );
+    }
+  } catch (error) {
+    spinner.stop();
+    console.error(chalk.red("\nLogin failed :"), error.message);
+    process.exit(1);
+  }
 }
 
 async function pollForToken(
