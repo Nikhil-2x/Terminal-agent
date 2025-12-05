@@ -1,8 +1,10 @@
 "use client";
+
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ShieldAlert } from "lucide-react";
+import FaultyTerminal from "@/components/FaultyTerminal";
 
 const DeviceAuthorizationPage = () => {
   const [userCode, setUserCode] = useState("");
@@ -18,8 +20,6 @@ const DeviceAuthorizationPage = () => {
     setError(null);
 
     try {
-      console.log(userCode);
-
       const formattedCode = userCode.trim().replace(/-/g, "").toUpperCase();
 
       const response = await authClient.device({
@@ -44,9 +44,37 @@ const DeviceAuthorizationPage = () => {
     setUserCode(value);
   };
 
+  const Faulty = useMemo(() => {
+    return (
+      <div className="absolute inset-0 z-0.5 opacity-[0.35] pointer-events-none h-full w-full">
+        <FaultyTerminal
+          scale={1.5}
+          gridMul={[2, 1]}
+          digitSize={1.2}
+          timeScale={1}
+          scanlineIntensity={0.5}
+          glitchAmount={1}
+          flickerAmount={1}
+          noiseAmp={1}
+          chromaticAberration={0}
+          dither={0}
+          curvature={0.1}
+          tint="#826490"
+          brightness={0.9}
+          pageLoadAnimation={true}
+          mouseReact={true}
+          mouseStrength={0.5}
+        />
+      </div>
+    );
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md">
+    <div className="relative min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
+      {Faulty}
+
+      {/* Your Page Content */}
+      <div className="w-full max-w-md z-30">
         {/* Header Section */}
         <div className="flex flex-col items-center gap-4 mb-8">
           <div className="p-3 rounded-lg border-2 border-dashed border-zinc-700">
@@ -65,7 +93,7 @@ const DeviceAuthorizationPage = () => {
         {/* Form Card */}
         <form
           onSubmit={handleSubmit}
-          className="border-2 border-dashed border-zinc-700 rounded-xl p-8 bg-zinc-950 backdrop-blur-sm"
+          className="border-2 border-dashed border-zinc-700 rounded-xl p-8 bg-black/40 backdrop-blur-xl"
         >
           <div className="space-y-6">
             {/* Code Input */}
@@ -107,7 +135,7 @@ const DeviceAuthorizationPage = () => {
             </button>
 
             {/* Info Box */}
-            <div className="p-4 bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-lg">
+            <div className="p-4 bg-zinc-900/60 border-2 border-dashed border-zinc-700 rounded-lg backdrop-blur">
               <p className="text-xs text-muted-foreground leading-relaxed">
                 This code is unique to your device and will expire shortly. Keep
                 it confidential and never share it with anyone.
