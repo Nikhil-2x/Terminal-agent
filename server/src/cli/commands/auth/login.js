@@ -70,14 +70,6 @@ export async function loginAction(opts) {
         }`
       );
 
-      if (error?.status === 404) {
-        console.log(chalk.red("\n❌ Device authorization endpoint not found."));
-        console.log(chalk.yellow("   Make sure your auth server is running."));
-      } else if (error?.status === 400) {
-        console.log(
-          chalk.red("\n❌ Bad request - check your CLIENT_ID configuration.")
-        );
-      }
       process.exit(1);
     }
 
@@ -112,6 +104,7 @@ export async function loginAction(opts) {
       await open(urlToOpen);
     }
 
+    //Polling
     console.log(
       chalk.gray(
         `Waiting for authorization (expires in ${Math.floor(
@@ -119,7 +112,83 @@ export async function loginAction(opts) {
         )} minutes)...`
       )
     );
+
+    const token = await pollForToken(
+      authClient,
+      device_code,
+      cliendtId,
+      interval
+    );
   } catch (error) {}
+}
+
+async function pollForToken(
+  authClient,
+  device_code,
+  cliendtId,
+  initialInterval
+) {
+  let pollingInterval = initialInterval;
+  const spinner = yoctoSpinner({ text: "", color: "cyan" });
+  let dots = 0;
+
+  return new Promise((req, res) => {
+    const poll = async () => {
+      {
+        ("");
+      }
+      //some loading
+      dots = (dots + 1) % 4;
+      spinner.text = chalk.gray(
+        `Polling for authorization${".".repeat(dots)}${" ".repeat(3 - dots)}`
+      );
+      if (!spinner.isSpinning) spinner.start();
+
+      try {
+        const { data, error } = await authClient.device.token({
+          grant_type: "urn:ietf:params:oauth:grant-type:device_code",
+          device_code,
+          client_id: cliendtId,
+          fetchOptions: {
+            headers: {
+              "user-agent": `My CLI`,
+            },
+          },
+        });
+        if (data?.access_token) {
+          console.log(chalk.bold.yellow(`Authorization successful!`));
+          spinner.stop();
+          res(data);
+          return;
+        } else if (error) {
+          switch (error.error) {
+            case "authorization_pending":
+              // Continue polling
+              break;
+            case "slow_down":
+              pollingInterval += 5;
+              break;
+            case "access_denied":
+              console.error("Access was denied by the user");
+              return;
+            case "expired_token":
+              console.error("The device code has expired. Please try again.");
+              return;
+            default:
+              spinner.stop();
+              logger.error(`Error: ${error.error_description}`);
+              process.exit(1);
+          }
+        }
+      } catch (error) {
+        spinner.stop();
+        logger.error("Network or unknown error:", error.error_description);
+        process.exit(1);
+      }
+      setTimeout(poll, pollingInterval * 1000);
+    };
+    setTimeout(poll, pollingInterval * 1000);
+  });
 }
 
 //commands
