@@ -1,4 +1,5 @@
 "use client";
+import Loader from "@/components/Loader/Loading";
 import LoginForm from "@/components/LoginForm";
 import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/auth-client";
@@ -16,7 +17,11 @@ const Page = () => {
   }, [isPending, data, router]);
 
   if (isPending || (data?.session && data?.user)) {
-    return <Spinner />;
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-background">
+        <Loader />
+      </div>
+    );
   }
 
   return (

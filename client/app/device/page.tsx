@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ShieldAlert } from "lucide-react";
 import FaultyTerminal from "@/components/FaultyTerminal";
+import { toast } from "sonner";
 
 const DeviceAuthorizationPage = () => {
   const [userCode, setUserCode] = useState("");
@@ -26,11 +27,20 @@ const DeviceAuthorizationPage = () => {
         query: { user_code: formattedCode },
       });
 
+      // if (response.error) {
+      //   console.log("response.error:", response.error);
+      //   toast.error("Invalid or expired code");
+      //   setError("Invalid or expired code");
+      //   return;
+      // }
+
       if (response.data) {
         router.push(`/approve?user_code=${formattedCode}`);
       }
     } catch (error) {
-      setError("Invalid or expired code");
+      console.log("catch error:", error);
+      toast.error("Something went wrong");
+      setError("Unexpected error");
     } finally {
       setIsLoading(false);
     }

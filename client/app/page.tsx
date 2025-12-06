@@ -2,17 +2,50 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import FaultyTerminal from "@/components/FaultyTerminal";
+import Loader from "@/components/Loader/Loading";
 
 export default function Home() {
   const { data, isPending } = authClient.useSession();
   const router = useRouter();
 
+  const Faulty = useMemo(() => {
+    return (
+      <div className="absolute inset-0 z-0.5 opacity-[0.35] pointer-events-none h-full w-full">
+        <FaultyTerminal
+          scale={1.5}
+          gridMul={[2, 1]}
+          digitSize={1.2}
+          timeScale={1}
+          scanlineIntensity={0.5}
+          glitchAmount={1}
+          flickerAmount={1}
+          noiseAmp={1}
+          chromaticAberration={0}
+          dither={0}
+          curvature={0.1}
+          tint="#826490"
+          brightness={0.9}
+          pageLoadAnimation={true}
+          mouseReact={true}
+          mouseStrength={0.5}
+        />
+      </div>
+    );
+  }, []);
+
+  // useEffect(() => {
+  //   if (!isPending && !data?.session && !data?.user) {
+  //     router.replace("/sign-in");
+  //   }
+  // }, [isPending, data, router]);
+
   useEffect(() => {
-    if (!isPending && !data?.session && !data?.user) {
+    if (!isPending && !data?.session) {
       router.replace("/sign-in");
     }
   }, [isPending, data, router]);
@@ -20,13 +53,15 @@ export default function Home() {
   if (isPending || (!data?.session && !data?.user)) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-zinc-950">
-        <Spinner />
+        <Loader />
       </div>
     );
   }
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-zinc-950 font-sans overflow-hidden">
+      {Faulty}
+
       {/* Animated background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -135,7 +170,7 @@ export default function Home() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex  flex-col sm:flex-row gap-3">
             <Button
               onClick={() =>
                 authClient.signOut({
@@ -145,7 +180,7 @@ export default function Home() {
                   },
                 })
               }
-              className="flex-1 h-12 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-red-500/20 hover:shadow-red-500/30 group"
+              className="flex-1 z-1 h-12 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-red-500/20 hover:shadow-red-500/30 group"
             >
               <svg
                 className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform"

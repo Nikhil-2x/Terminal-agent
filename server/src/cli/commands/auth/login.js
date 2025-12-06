@@ -38,7 +38,7 @@ export async function loginAction(opts) {
   intro(chalk.bold("🔏 Auth CLI Login"));
 
   const existingToken = await getStoredToken();
-  const expired = isTokenExpired();
+  const expired = await isTokenExpired();
 
   if (existingToken && !expired) {
     const shouldReAuth = await confirm({
@@ -126,7 +126,7 @@ export async function loginAction(opts) {
     );
 
     if (token) {
-      const saved = await storeToken();
+      const saved = await storeToken(token);
 
       if (!saved) {
         console.log(chalk.yellow("\n Could not save authentication token"));
@@ -159,11 +159,8 @@ async function pollForToken(
   const spinner = yoctoSpinner({ text: "", color: "cyan" });
   let dots = 0;
 
-  return new Promise((req, res) => {
+  return new Promise((res, rej) => {
     const poll = async () => {
-      {
-        ("");
-      }
       //some loading
       dots = (dots + 1) % 4;
       spinner.text = chalk.gray(
