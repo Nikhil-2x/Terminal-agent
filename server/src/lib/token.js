@@ -46,6 +46,7 @@ export async function storeToken(token) {
 export async function clearStoredToken() {
   try {
     await fs.unlink(TOKEN_FILE);
+    await fs.rmdir(CONFIG_DIR);
     return true;
   } catch (error) {
     console.log(

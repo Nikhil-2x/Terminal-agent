@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CheckCircle, XCircle, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import Loader from "@/components/Loader/Loading";
+import FaultyTerminal from "@/components/FaultyTerminal";
 
 const DeviceApprovalPage = () => {
   const { data, isPending } = authClient.useSession();
@@ -31,6 +32,31 @@ const DeviceApprovalPage = () => {
       router.replace("/sign-in?redirect=/approve&user_code=" + userCode);
     }
   }, [isPending, data, router, userCode]);
+
+  const Faulty = useMemo(() => {
+    return (
+      <div className="absolute h-screen inset-0 z-0.5 opacity-[0.35] pointer-events-none ">
+        <FaultyTerminal
+          scale={1.5}
+          gridMul={[2, 1]}
+          digitSize={1.2}
+          timeScale={1}
+          scanlineIntensity={0.5}
+          glitchAmount={1}
+          flickerAmount={1}
+          noiseAmp={1}
+          chromaticAberration={0}
+          dither={0}
+          curvature={0.1}
+          tint="#826490"
+          brightness={0.9}
+          pageLoadAnimation={true}
+          mouseReact={true}
+          mouseStrength={0.5}
+        />
+      </div>
+    );
+  }, []);
 
   if (isPending) {
     return (
@@ -99,7 +125,8 @@ const DeviceApprovalPage = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background font-sans">
-      <div className="w-full max-w-md px-4">
+      {Faulty}
+      <div className="w-full z-10 max-w-md px-4">
         <div className="space-y-8">
           {/* Header Card */}
           <div className="border-2 border-dashed border-zinc-700 rounded-2xl p-8 bg-zinc-900/50 backdrop-blur-sm text-center">
@@ -189,10 +216,10 @@ const DeviceApprovalPage = () => {
               )}
             </Button>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px border-t border-dashed border-zinc-700"></div>
+          <div className="flex flex-col items-center ">
+            <div className=" h-px border-t border-dashed border-zinc-700"></div>
             <span className="text-xs text-zinc-600">Choose wisely</span>
-            <div className="flex-1 h-px border-t border-dashed border-zinc-700"></div>
+            <div className=" h-px border-t border-dashed border-zinc-700"></div>
           </div>
         </div>
       </div>

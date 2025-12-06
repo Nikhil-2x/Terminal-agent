@@ -136,8 +136,8 @@ const LoginForm = () => {
         </Card>
 
         {/* Footer decorative element */}
-        <div className="flex items-center justify-center gap-2 text-xs text-zinc-600">
-          <span>Powered by Nick</span>
+        <div className="flex items-center justify-center gap-2 text-xs text-zinc-400">
+          <span className="font-bold">Powered by Nick</span>
         </div>
       </div>
     </div>

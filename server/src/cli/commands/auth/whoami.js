@@ -31,7 +31,8 @@ export const whoamiAction = async (opts) => {
   });
 
   console.log(
-    chalk.bold.greenBright(`\n ✌︎㋡ User: ${user.name}
+    chalk.bold.greenBright(`\n
+    ✌︎ ㋡ User: ${user.name}
     📧 Email:${user.email}
     🆔 ID: ${user.id}
     `),

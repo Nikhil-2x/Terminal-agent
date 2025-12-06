@@ -204,7 +204,7 @@ export default function Home() {
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent"></div>
             <div className="flex items-center gap-2 text-xs text-zinc-600">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span className="font-medium">Authenticated</span>
+              <span className="font-bold text-zinc-300">Authenticated</span>
             </div>
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent"></div>
           </div>
