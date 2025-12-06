@@ -7,7 +7,7 @@ export async function getStoredToken() {
   try {
     const data = await fs.readFile(TOKEN_FILE, "utf-8");
     const token = JSON.parse(data);
-    console.log(token);
+    // console.log(token);
 
     return token;
   } catch (error) {
@@ -51,8 +51,8 @@ export async function clearStoredToken() {
     console.log(
       chalk.red(
         "File doesn't exist or got error while deleting..",
-        error.message
-      )
+        error.message,
+      ),
     );
     return false;
   }
@@ -107,7 +107,7 @@ export async function requireAuth() {
       console.log(
         chalk.gray("   Run ") +
           chalk.cyan.bold("logicsh login") +
-          chalk.gray(" to continue.\n")
+          chalk.gray(" to continue.\n"),
       );
       process.exit(1);
     }
@@ -121,7 +121,7 @@ export async function requireAuth() {
       console.log(
         chalk.gray("   Please run ") +
           chalk.cyan.bold("logicsh login") +
-          chalk.gray(" to re-authenticate.\n")
+          chalk.gray(" to re-authenticate.\n"),
       );
       process.exit(1);
     }
@@ -135,7 +135,7 @@ export async function requireAuth() {
     console.log(
       chalk.gray("   Try running ") +
         chalk.cyan.bold("logicsh login") +
-        chalk.gray(" again.\n")
+        chalk.gray(" again.\n"),
     );
 
     process.exit(1);

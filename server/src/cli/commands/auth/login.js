@@ -72,7 +72,7 @@ export async function loginAction(opts) {
       logger.error(
         `Failed to request device authorization: ${
           error.error_description || error?.message || "Unknown error"
-        }`
+        }`,
       );
 
       process.exit(1);
@@ -92,8 +92,8 @@ export async function loginAction(opts) {
 
     console.log(
       `Please visit: ${chalk.underline.blue(
-        verification_uri_complete || verification_uri
-      )}`
+        verification_uri_complete || verification_uri,
+      )}`,
     );
 
     console.log(`Enter code: ${chalk.bold.green(user_code)}`);
@@ -113,16 +113,16 @@ export async function loginAction(opts) {
     console.log(
       chalk.gray(
         `Waiting for authorization (expires in ${Math.floor(
-          expires_in / 60
-        )} minutes)...`
-      )
+          expires_in / 60,
+        )} minutes)...`,
+      ),
     );
 
     const token = await pollForToken(
       authClient,
       device_code,
       cliendtId,
-      interval
+      interval,
     );
 
     if (token) {
@@ -138,8 +138,8 @@ export async function loginAction(opts) {
 
       console.log(
         chalk.gray(
-          "You can now use commands without logging again till expiry of your token.\n"
-        )
+          "You can now use commands without logging again till expiry of your token.\n",
+        ),
       );
     }
   } catch (error) {
@@ -153,7 +153,7 @@ async function pollForToken(
   authClient,
   device_code,
   cliendtId,
-  initialInterval
+  initialInterval,
 ) {
   let pollingInterval = initialInterval;
   const spinner = yoctoSpinner({ text: "", color: "cyan" });
@@ -164,7 +164,7 @@ async function pollForToken(
       //some loading
       dots = (dots + 1) % 4;
       spinner.text = chalk.gray(
-        `Polling for authorization${".".repeat(dots)}${" ".repeat(3 - dots)}`
+        `Polling for authorization${".".repeat(dots)}${" ".repeat(3 - dots)}`,
       );
       if (!spinner.isSpinning) spinner.start();
 

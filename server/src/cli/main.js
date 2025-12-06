@@ -6,6 +6,8 @@ import { Command } from "commander";
 
 import "dotenv/config";
 import { login } from "./commands/auth/login.js";
+import { logout } from "./commands/auth/logout.js";
+import { whoami } from "./commands/auth/whoami.js";
 
 async function main() {
   console.log(
@@ -13,8 +15,8 @@ async function main() {
       figlet.textSync("Logic  Shell", {
         font: "doom",
         horizontalLayout: "fitted",
-      })
-    )
+      }),
+    ),
   );
 
   console.log(chalk.grey("A terminal based ai tool"));
@@ -23,7 +25,9 @@ async function main() {
   program
     .version("0.1")
     .description("Logic Shell - A cli based AI Tool")
-    .addCommand(login);
+    .addCommand(login)
+    .addCommand(logout)
+    .addCommand(whoami);
 
   program.action(() => {
     program.help();
