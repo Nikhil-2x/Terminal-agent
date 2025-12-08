@@ -15,7 +15,7 @@ export class AIService {
   async sendMessage(messages, onChunk, tools = undefined, onToolCall = null) {
     try {
       const streamConfig = {
-        mode: this.model,
+        model: this.model,
         messages: messages,
       };
 
