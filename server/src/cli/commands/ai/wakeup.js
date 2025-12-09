@@ -9,7 +9,7 @@ import { startChat } from "../../chat/chat-with-ai.js";
 const wakeupAction = async () => {
   const token = await getStoredToken();
 
-  if (!token.access_token) {
+  if (!token?.access_token) {
     console.log(chalk.red("Not authenticated. Please login first."));
     return;
   }

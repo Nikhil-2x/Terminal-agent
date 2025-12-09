@@ -55,6 +55,7 @@ export async function startChat(mode = "chat", conversationId = null) {
       borderStyle: "round",
       borderColor: "red",
     });
+    console.log(erroBox);
   }
 }
 
