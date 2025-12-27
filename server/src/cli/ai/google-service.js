@@ -12,7 +12,7 @@ export class AIService {
     this.model = google(config.model, { apiKey: config.googleApiKey });
   }
 
-  async sendMessage(messages, onChunk, tools = undefined, onToolCall = null) {
+  async sendMessage(messages, onChunk, tools = {}, onToolCall = null) {
     try {
       const streamConfig = {
         model: this.model,
@@ -23,8 +23,17 @@ export class AIService {
         streamConfig.tools = tools;
         streamConfig.maxSteps = 5;
       }
+      // console.log(
+      //   chalk.gray(`[DEBUG] Tools enabled: ${Object.keys(tools).join(", ")}`)
+      // );
       console.log(
-        chalk.gray(`[DEBUG] Tools enabled: ${Object.keys(tools).join(", ")}`)
+        chalk.gray(
+          `[DEBUG] Tools enabled: ${
+            Object.keys(tools).length > 0
+              ? Object.keys(tools).join(", ")
+              : "none"
+          }`
+        )
       );
 
       const result = streamText(streamConfig);
