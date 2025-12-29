@@ -1,6 +1,6 @@
 import { google } from "@ai-sdk/google";
 import { config } from "../../config/google.config.js";
-import { streamText } from "ai";
+import { generateObject, streamText } from "ai";
 import chalk from "chalk";
 
 export class AIService {
@@ -32,8 +32,8 @@ export class AIService {
             Object.keys(tools).length > 0
               ? Object.keys(tools).join(", ")
               : "none"
-          }`
-        )
+          }`,
+        ),
       );
 
       const result = streamText(streamConfig);
@@ -90,10 +90,28 @@ export class AIService {
       (chunk) => {
         fullResponse += chunk;
       },
-      tools
+      tools,
     );
     1;
 
     return result.content;
+  }
+
+  async generateStructured(schema, prompt) {
+    try {
+      const result = await generateObject({
+        model: this.model,
+        schema: schema,
+        prompt: prompt,
+      });
+
+      return result.object;
+    } catch (error) {
+      console.error(
+        chalk.red("AI structured generation error:"),
+        error.message,
+      );
+      throw error;
+    }
   }
 }
