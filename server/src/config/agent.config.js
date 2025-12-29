@@ -2,7 +2,7 @@ import { generateObject } from "ai";
 import chalk from "chalk";
 import { promises as fs } from "fs";
 import path from "path";
-import z from "zod";
+import { z } from "zod";
 
 const ApplicationSchema = z.object({
   folderName: z
@@ -26,9 +26,14 @@ const ApplicationSchema = z.object({
       ),
   ),
   dependencies: z
-    .record(z.string())
+    .array(
+      z.object({
+        name: z.string().describe("npm package name"),
+        version: z.string().describe("npm package version"),
+      }),
+    )
     .optional()
-    .describe("npm dependencies with versions"),
+    .describe("npm dependencies"),
 });
 
 function printSystem(message) {
@@ -93,7 +98,7 @@ export async function generateApplication(
     printSystem(chalk.cyan("\n🤖 Agent Mode: ⌛Generating your application"));
     printSystem(chalk.gray(`Request: ${description}\n`));
 
-    const { object: application } = await generateObject({
+    const result = await generateObject({
       model: aiService.model,
       schema: ApplicationSchema,
       prompt: `Create a complete, production-ready application for: ${description}
@@ -116,6 +121,8 @@ Provide:
 - Setup commands (for example: cd folder, npm install, npm run dev OR just open index.html)
 - Make it visually appealing and functional`,
     });
+
+    const application = result.object;
 
     printSystem(
       chalk.greenBright(`\n ☑️Generated:${application.folderName}\n`),
@@ -159,7 +166,7 @@ Provide:
     };
   } catch (err) {
     printSystem(
-      chalk.red("\n❌ Error generating application: ${err.message}\n"),
+      chalk.red(`\n❌ Error generating application: ${err.message}\n`),
     );
     if (err.stack) {
       printSystem(chalk.dim(err.stack));

@@ -6,41 +6,35 @@ import { ChatService } from "../../service/chat.service.js";
 import prisma from "../../lib/db.js";
 import { generateApplication } from "../../config/agent.config.js";
 import { getStoredToken } from "../../lib/token.js";
+import yoctoSpinner from "yocto-spinner";
 
 const aiService = new AIService();
 const chatService = new ChatService();
 
 async function getUserFromToken() {
-  try {
-    const token = await getStoredToken();
+  const token = await getStoredToken();
 
-    if (!token?.access_token) {
-      throw new Error("Not authenticated. Pls run 'logicsh login' first!");
-      //   return;
-    }
-    const spinner = yoctoSpinner({ text: "Authenticating.." }).start();
-
-    const user = await prisma.user.findFirst({
-      where: {
-        sessions: {
-          some: {
-            token: token.access_token,
-          },
-        },
-      },
-    });
-
-    if (!user) {
-      spinner.error("User not found");
-      throw new Error("User not found. Please login again.");
-    }
-
-    spinner.success(`Welcome back, ${user.name}!`);
-    return user;
-  } catch (error) {
-    console.log(chalk.red("Something went wrong.."));
-    return null;
+  if (!token?.access_token) {
+    throw new Error("Not authenticated. Please run 'logicsh login' first!");
   }
+
+  const spinner = yoctoSpinner({ text: "Authenticating.." }).start();
+
+  const user = await prisma.user.findFirst({
+    where: {
+      sessions: {
+        some: { token: token.access_token },
+      },
+    },
+  });
+
+  if (!user) {
+    spinner.error("User not found");
+    throw new Error("User not found. Please login again.");
+  }
+
+  spinner.success(`Welcome back, ${user.name}!`);
+  return user;
 }
 
 async function initConversation(userId, conversationId = null) {
@@ -49,7 +43,7 @@ async function initConversation(userId, conversationId = null) {
   const conversation = await chatService.getOrCreateConversation(
     userId,
     conversationId,
-    mode,
+    "agent",
   );
 
   spinner.success("Convo loaded..");
@@ -81,51 +75,6 @@ async function initConversation(userId, conversationId = null) {
 
 async function saveMessage(conversationId, role, content) {
   return await chatService.addMessage(conversationId, role, content);
-}
-
-async function startAgentLoop(conversationId = null) {
-  try {
-    intro(
-      boxen(
-        chalk.bold.magenta("🤖 Logicsh AI - Agent Mode\n\n") +
-          chalk.gray("Autonomous Application Generator"),
-        {
-          padding: 1,
-          borderStyle: "double",
-          borderColor: "magenta",
-        },
-      ),
-    );
-
-    const user = await getUserFromToken();
-
-    const shouldContinue = await confirm({
-      message: chalk.yellow(
-        "⚠️  The agent will create files and folders in the current directory. Continue?",
-      ),
-      initialValue: true,
-    });
-
-    if (isCancel(shouldContinue) || !shouldContinue) {
-      cancel(chalk.yellow("Agent mode cancelled"));
-      process.exit(0);
-    }
-
-    const conversation = await initConversation(user.id, conversationId);
-    await agentLoop(conversation);
-
-    outro(chalk.bold.green("Thanks for using our agent mdoe."));
-  } catch (error) {
-    const errorBox = boxen(chalk.red(`❌ Error: ${error.message}`), {
-      padding: 1,
-      margin: 1,
-      borderStyle: "round",
-      borderColor: "red",
-    });
-
-    console.log(errorBox);
-    process.exit(1);
-  }
 }
 
 async function agentLoop(conversation) {
@@ -202,7 +151,7 @@ async function agentLoop(conversation) {
           `Location: ${result.appDir}\n\n` +
           `Setup commands:\n${result.commands.join("\n")}`;
 
-        await saveMessage(conversation.id, "assisstant", responseMessage);
+        await saveMessage(conversation.id, "assistant", responseMessage);
 
         const continuePrompt = await confirm({
           message: chalk.cyan(
@@ -238,5 +187,53 @@ async function agentLoop(conversation) {
         break;
       }
     }
+  }
+}
+
+export async function startAgentChat(conversationId = null) {
+  try {
+    intro(
+      boxen(
+        chalk.bold.magenta("🤖 Logicsh AI - Agent Mode\n\n") +
+          chalk.gray("Autonomous Application Generator"),
+        {
+          padding: 1,
+          borderStyle: "double",
+          borderColor: "magenta",
+        },
+      ),
+    );
+
+    const user = await getUserFromToken();
+    if (!user) {
+      throw new Error("Authentication failed");
+    }
+
+    const shouldContinue = await confirm({
+      message: chalk.yellow(
+        "⚠️  The agent will create files and folders in the current directory. Continue?",
+      ),
+      initialValue: true,
+    });
+
+    if (isCancel(shouldContinue) || !shouldContinue) {
+      cancel(chalk.yellow("Agent mode cancelled"));
+      process.exit(0);
+    }
+
+    const conversation = await initConversation(user.id, conversationId);
+    await agentLoop(conversation);
+
+    outro(chalk.bold.green("Thanks for using our agent mdoe."));
+  } catch (error) {
+    const errorBox = boxen(chalk.red(`❌ Error: ${error.message}`), {
+      padding: 1,
+      margin: 1,
+      borderStyle: "round",
+      borderColor: "red",
+    });
+
+    console.log(errorBox);
+    process.exit(1);
   }
 }

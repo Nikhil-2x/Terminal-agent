@@ -6,6 +6,7 @@ import { select } from "@clack/prompts";
 import prisma from "../../../lib/db.js";
 import { startChat } from "../../chat/chat-with-ai.js";
 import { startToolChat } from "../../chat/chat-with-ai-tools.js";
+import { startAgentChat } from "../../chat/chat-with-ai-agents.js";
 
 const wakeupAction = async () => {
   const token = await getStoredToken();
@@ -77,6 +78,7 @@ const wakeupAction = async () => {
 
     case "agent":
       console.log(chalk.green("Agent selected"));
+      await startAgentChat();
       break;
   }
 };
